@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/icon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Musa</title>
+	</head>
+
+	<body>
+		<div class="titlebar">
+			<div data-tauri-drag-region></div>
+			<div class="controls">
+				<button id="titlebar-minimize" title="minimize">
+					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+	<path fill="currentColor" fill-rule="evenodd" d="M1 10a1 1 0 0 1 1-1h16a1 1 0 1 1 0 2H2a1 1 0 0 1-1-1" clip-rule="evenodd" stroke-width="2" stroke="currentColor" />
+</svg>
+				</button>
+				<button id="titlebar-maximize" title="maximize">
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M3 21V3h18v18zm2-2h14V5H5zm0 0V5z" stroke-width="2" stroke="currentColor"/></svg>
+				<button id="titlebar-close" title="close">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="24"
+						height="24"
+						viewBox="0 0 32 32"
+					>
+						<path
+							fill="currentColor"
+							d="M24.879 2.879A3 3 0 1 1 29.12 7.12l-8.79 8.79a.125.125 0 0 0 0 .177l8.79 8.79a3 3 0 1 1-4.242 4.243l-8.79-8.79a.125.125 0 0 0-.177 0l-8.79 8.79a3 3 0 1 1-4.243-4.242l8.79-8.79a.125.125 0 0 0 0-.177l-8.79-8.79A3 3 0 0 1 7.12 2.878l8.79 8.79a.125.125 0 0 0 .177 0z"
+						/>
+					</svg>
+				</button>
+			</div>
+		</div>
+		<div id="app"></div>
+		<script type="module" src="/src/main.ts"></script>
+	</body>
+</html>

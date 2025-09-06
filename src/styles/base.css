@@ -1,0 +1,123 @@
+:root {
+	--background: rgb(17, 17, 17); /* #111111 */
+	--secondary: rgb(92, 88, 88); /* #222222 */
+	--border: rgb(51, 51, 51); /* #333333 */
+	--foreground: rgb(255, 255, 255); /* #fff */
+	--secondary-foreground: rgb(170, 170, 170); /* #aaa */
+
+	/* Прозрачные версии для стекла */
+	--background-glass: rgba(17, 17, 17, 0.2);
+	--secondary-glass: rgba(92, 88, 88, 0.3);
+	--border-glass: rgba(51, 51, 51, 0.3);
+
+	--app-gradient: linear-gradient(
+		80deg,
+		rgba(174, 110, 110, 0.8),
+		rgba(244, 139, 83, 0.7)
+	);
+}
+
+.app_container {
+	display: flex;
+	gap: 4px;
+	height: 100lvh;
+
+	background: var(--app-gradient);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	transition: background 3s ease;
+}
+
+body {
+	background: var(--background);
+	color: var(--foreground);
+	margin: 0px;
+	font-size: 14px;
+	height: 100vh;
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+button {
+	cursor: pointer;
+	border-color: var(--border);
+	color: var(--foreground);
+	text-align: center;
+	font-size: 14px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+	font-weight: 600;
+}
+
+.bg-primary {
+	background: var(--background);
+}
+
+.text-foreground {
+	color: var(--foreground);
+}
+
+.bg-secondary {
+	background: var(--secondary);
+}
+
+.text-secondary {
+	color: var(--secondary-foreground);
+}
+
+.titlebar {
+	height: 26px;
+	background: transparent;
+	user-select: none;
+	display: grid;
+	grid-template-columns: auto max-content;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 100;
+}
+
+.titlebar > .controls {
+	display: flex;
+	gap: 6px;
+	height: 23px;
+	padding-top: 6px;
+	padding-right: 6px;
+}
+.titlebar button {
+	appearance: none;
+	padding: 0;
+	margin: 0;
+	border: none;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 23px;
+	background-color: var(--background-glass);
+	backdrop-filter: blur(10px);
+	border-radius: 100%;
+	padding: 7px;
+	aspect-ratio: 1 / 1;
+}
+.titlebar button:hover {
+	scale: 1.1;
+	background-color: var(--secondary-glass);
+}
+
+.titlebar button:last-child:hover {
+	background-color: rgba(255, 0, 0, 0.262);
+}
+
+*[data-tauri-drag-region] {
+	app-region: drag;
+}
+
+.titlebar > div[data-tauri-drag-region] {
+	cursor: pointer;
+	height: 14px;
+}
