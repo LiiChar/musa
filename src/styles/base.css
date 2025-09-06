@@ -84,7 +84,7 @@ h5 {
 
 .titlebar > .controls {
 	display: flex;
-	gap: 6px;
+	gap: 4px;
 	height: 23px;
 	padding-top: 6px;
 	padding-right: 6px;

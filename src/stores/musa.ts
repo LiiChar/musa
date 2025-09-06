@@ -7,6 +7,7 @@ import {
 	setVolume as setV,
 	setTime as sT,
 	getMusics,
+	getTime,
 } from '../api/music';
 import { load } from '@tauri-apps/plugin-store';
 
@@ -83,7 +84,9 @@ export const useMusa = defineStore('musa', {
 				this.music.duration >= this.time &&
 				this.isPlaying
 			) {
-				this.time = this.time + 100;
+				const currentTime = await getTime();
+
+				this.time = currentTime * 1000;
 				return true;
 			} else {
 				if (
@@ -118,7 +121,7 @@ export const useMusa = defineStore('musa', {
 			const newPlalylistItem: Record<string, string[]> = {};
 			newPlalylistItem[this.playlist] = {
 				...playlists[this.playlist],
-				...this.musicList.map(music => music.path),
+				...this.musicList.map((music) => music.path),
 			};
 			await store.set('musics', {
 				...playlists,
@@ -136,7 +139,7 @@ export const useMusa = defineStore('musa', {
 			const newPlalylistItem: Record<string, string[]> = {};
 			newPlalylistItem[this.playlist] = {
 				...playlists[this.playlist],
-				...this.musicList.map(music => music.path),
+				...this.musicList.map((music) => music.path),
 			};
 			await store.set('musics', {
 				...playlists,

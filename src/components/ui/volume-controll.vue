@@ -115,10 +115,6 @@ const { volume, onChange } = defineProps<{
 	transition: all 0.2s ease;
 }
 
-.controller_icons.active {
-	scale: 1.05 !important;
-}
-
 .controller_container {
 	display: flex;
 	gap: 12px;

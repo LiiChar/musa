@@ -17,6 +17,7 @@ const { variant = 'default', active = false } = defineProps<{
 	padding: 8px 16px;
 	cursor: pointer;
 }
+
 .btn.default {
 	padding: 6px;
 	display: flex;
@@ -57,6 +58,12 @@ const { variant = 'default', active = false } = defineProps<{
 	background-color: var(--secondary);
 }
 
+.btn.rounded:hover {
+	transition: none;
+
+	backdrop-filter: none;
+}
+
 .btn.ghost {
 	background-color: transparent;
 	border-color: transparent;
@@ -65,11 +72,11 @@ const { variant = 'default', active = false } = defineProps<{
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	transition: all 0.05s ease-in-out;
 }
 
 .btn.ghost:hover {
 	background-color: var(--secondary-glass);
-	backdrop-filter: blur(10px);
 }
 
 .btn.ghost.active {

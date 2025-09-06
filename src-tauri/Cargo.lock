@@ -2362,6 +2362,7 @@ version = "0.1.0"
 dependencies = [
  "base64 0.22.1",
  "clap",
+ "cpal",
  "dirs",
  "lofty",
  "minimp3",
@@ -2377,6 +2378,7 @@ dependencies = [
  "tauri-plugin-fs",
  "tauri-plugin-opener",
  "tauri-plugin-store",
+ "thiserror 1.0.69",
  "tokio",
  "walkdir",
 ]

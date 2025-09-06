@@ -48,8 +48,8 @@ function parseRGBA(color: string) {
 
 function softenColorHSL(
 	color: string,
-	satFactor = 0.5,
-	lightFactor = 1.1,
+	satFactor = 0.6,
+	lightFactor = 1.02,
 	alpha = 0.5
 ): string {
 	let [r, g, b] = parseRGBA(color);
@@ -110,10 +110,8 @@ function softenColorHSL(
 
 export function createSoftRadialGradient(
 	colors: string[],
-	radiusPercent = 70.71
+	radiusPercent = 80.71
 ): string {
-	console.log(colors);
-
 	const gradients = colors.map((color, i) => {
 		const angle = (360 / colors.length) * i;
 		const rad = (angle * Math.PI) / 180;

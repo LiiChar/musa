@@ -52,12 +52,14 @@ export const stopMusic = async () => await invoke('stop_music');
 export const setVolume = async (volume: number) =>
 	await invoke('set_volume', { volume });
 
-export const setTime = async (ms: number) => await invoke('seek_music', { ms });
+export const setTime = async (ms: number) =>
+	await invoke('seek_music', { sec: ms * 0.001 });
 
 export const getWave = async (path: string, points: number) => {
 	return await invoke<number[]>('get_wave', { path, points });
-	6;
 };
+
+export const getTime = async () => await invoke<number>('get_time');
 
 // export const getWave = async (path: string, points: number) => {
 // 	return normalizeAndReduce(

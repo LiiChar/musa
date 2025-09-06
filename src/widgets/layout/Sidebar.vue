@@ -12,6 +12,7 @@ import Button from '../../components/ui/button.vue';
 import PlaylistList from '../../components/playlist/PlaylistList.vue';
 import SelectPath from '../../components/file/SelectPath.vue';
 import PlaylistAction from '../../components/playlist/PlaylistAction.vue';
+import SidebarToggle from '../../components/ui/sidebar-toggle.vue';
 
 const musa = useMusa();
 const layout = useLayout();
@@ -27,15 +28,15 @@ const isSearch = ref(false);
 // логика поиска исправлена
 const searchedMusic = computed(() => {
 	if (!isSearch.value) return musicList.value;
-	const musicListTitleSearched = musicList.value.filter(v =>
+	const musicListTitleSearched = musicList.value.filter((v) =>
 		v.title?.toLowerCase().includes(searchedString.value.toLowerCase())
 	);
 	if (musicListTitleSearched.length > 0) return musicListTitleSearched;
-	const musicListArtistSearched = musicList.value.filter(v =>
+	const musicListArtistSearched = musicList.value.filter((v) =>
 		v.artist?.toLowerCase().includes(searchedString.value.toLowerCase())
 	);
 	if (musicListArtistSearched.length > 0) return musicListArtistSearched;
-	const musicListAlbumSearched = musicList.value.filter(v =>
+	const musicListAlbumSearched = musicList.value.filter((v) =>
 		v.album?.toLowerCase().includes(searchedString.value.toLowerCase())
 	);
 	return musicListAlbumSearched;
@@ -66,7 +67,7 @@ const handleSelectPaths = async (paths: string[]) => {
 
 const timeRemain = computed(() => {
 	const currentIndex = music.value
-		? musicList.value.findIndex(s => s.title === music.value!.title)
+		? musicList.value.findIndex((s) => s.title === music.value!.title)
 		: 0;
 	return musicList.value
 		.slice(currentIndex)
@@ -88,6 +89,22 @@ const timeRemain = computed(() => {
 				<div class="sidebar_description">
 					{{ Math.ceil(timeRemain / 1000 / 60) }} minutes remaining
 				</div>
+			</div>
+			<div class="sidebar_header_actions">
+				<Button
+					variant="rounded"
+					:active="visible.sidebar"
+					@click="layout.toggleVisibleSidebar"
+					class="sidebar_toggle"
+				>
+					<SidebarToggle :height="17" :is-toggle="visible.sidebar" />
+				</Button>
+				<Button
+					variant="rounded"
+					@click="layout.toggleVisiblePlaylist"
+					:active="layout.visible.playlist"
+					><Icon height="18" icon="mdi-light:menu"
+				/></Button>
 			</div>
 		</div>
 
@@ -314,7 +331,6 @@ const timeRemain = computed(() => {
 	opacity: 0;
 }
 
-/* внутренние списки могут скроллиться сами */
 .music_list,
 .playlist_list {
 	height: 100%;
@@ -326,5 +342,22 @@ const timeRemain = computed(() => {
 .playlist_list::-webkit-scrollbar {
 	width: 0;
 	height: 0;
+}
+
+.sidebar_toggle {
+	opacity: 0;
+	transition: none !important;
+}
+
+.sidebar_header_actions {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+@media (max-width: 600px) {
+	.sidebar_toggle {
+		opacity: 1;
+	}
 }
 </style>

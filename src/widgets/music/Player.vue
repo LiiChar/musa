@@ -44,7 +44,7 @@ watch(music, async () => {
 
 		document.documentElement.style.setProperty(
 			'--app-gradient',
-			createSoftRadialGradient(gradient.map(g => `rgba(${g.join(',')},1)`))
+			createSoftRadialGradient(gradient.map((g) => `rgba(${g.join(',')},1)`))
 		);
 	} else {
 		const g = `linear-gradient(
@@ -72,7 +72,7 @@ const handleSpaceDown = (e: KeyboardEvent) => {
 onMounted(async () => {
 	updateTimeInterval = setInterval(async () => {
 		await musaStore.playing();
-	}, 100);
+	}, 1000);
 
 	window.addEventListener('keydown', handleSpaceDown);
 });
@@ -94,7 +94,7 @@ const handleChangeVolume = async (payload: number[] | undefined) => {
 const handleChangeTime = async (payload: number[] | undefined) => {
 	if (!payload) return;
 
-	await musaStore.timeSeek(payload[0]);
+	await musaStore.timeSeek((music.value?.duration! / 100) * payload[0]);
 };
 </script>
 
