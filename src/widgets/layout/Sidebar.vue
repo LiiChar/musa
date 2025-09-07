@@ -17,7 +17,7 @@ import SidebarToggle from '../../components/ui/sidebar-toggle.vue';
 const musa = useMusa();
 const layout = useLayout();
 
-const { musicList, music, playlist, playlists } = storeToRefs(musa);
+const { musicList, music, playlist, playlists, time } = storeToRefs(musa);
 const { visible } = storeToRefs(layout);
 
 const musicPlaylists = ref<Record<string, string[]>>({});
@@ -44,11 +44,13 @@ const searchedMusic = computed(() => {
 
 onMounted(async () => {
 	const store = await load('music.json');
+	const currentPlaylist = await musa.getCurrentPlaylist();
+	
 	const musicPlaylistPaths =
 		(await store.get<Record<string, string[]>>('musics')) ?? {};
 	musicPlaylists.value = musicPlaylistPaths;
 	musa.setPlaylists(Object.keys(musicPlaylistPaths));
-	let musicPaths = Object.values(musicPlaylistPaths[playlist.value] ?? {});
+	let musicPaths = Object.values(musicPlaylistPaths[currentPlaylist] ?? {});
 
 	if (musicPaths && musicPaths.length > 0) {
 		const musics = await getMusics(musicPaths);
@@ -87,7 +89,7 @@ const timeRemain = computed(() => {
 			<div class="sidebar_info">
 				<div class="sidebar_title">Playlist - {{ playlist }}</div>
 				<div class="sidebar_description">
-					{{ Math.ceil(timeRemain / 1000 / 60) }} minutes remaining
+					{{ Math.ceil((timeRemain - time) / 1000 / 60) }} minutes remaining
 				</div>
 			</div>
 			<div class="sidebar_header_actions">
@@ -103,6 +105,7 @@ const timeRemain = computed(() => {
 					variant="rounded"
 					@click="layout.toggleVisiblePlaylist"
 					:active="layout.visible.playlist"
+					class="sidebar_toggle"
 					><Icon height="18" icon="mdi-light:menu"
 				/></Button>
 			</div>
@@ -134,7 +137,7 @@ const timeRemain = computed(() => {
 			class="playlist-list_action"
 			:style="{ bottom: isSearch ? '46px' : '0px' }"
 		>
-			<div class="sidebar_action_wrapper">
+			<div class="sidebar_action_wrapper" v-if="!visible.playlist">
 				<Button
 					:active="isSearch"
 					variant="rounded"

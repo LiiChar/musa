@@ -4,6 +4,7 @@ import { useMusa } from '../../stores/musa';
 import { getUrl } from '../../utils/url';
 import { storeToRefs } from 'pinia';
 import { Icon } from '@iconify/vue';
+import MusicAction from './MusicAction.vue';
 
 const { music } = defineProps<{
 	music: Music;
@@ -42,7 +43,10 @@ const { music: m } = storeToRefs(musa);
 			</div>
 		</div>
 		<div class="played" v-if="m && m.id === music.id">
-			<Icon height="16" icon="solar:play-stream-linear" />
+			<Icon class="played_icon" height="16" icon="solar:play-stream-linear" />
+		</div>
+		<div class="played music_action_wrapper">
+			<MusicAction class="music_action"/>
 		</div>
 	</div>
 </template>
@@ -104,6 +108,10 @@ const { music: m } = storeToRefs(musa);
 	white-space: nowrap;
 }
 
+.music_item .played {
+	position: absolute;
+}
+
 .music_item.active .played {
 	position: absolute;
 	top: 50%;
@@ -116,5 +124,70 @@ const { music: m } = storeToRefs(musa);
 	-webkit-backdrop-filter: blur(10px);
 	border-radius: 100%;
 	padding: 8px;
+}
+
+.played {
+}
+
+.music_item.active .played:last-child {
+	z-index: -1;
+		opacity: 0;
+}
+
+.music_item.active:hover .played:last-child {
+	z-index: 1;
+		opacity: 1;
+}
+
+.played .music_action {
+		z-index: -1;
+		opacity: 0;
+	}
+
+	.music_action_wrapper {
+		padding: 0 !important;
+		width: 32px !important;
+		height: 32px !important;
+	}
+
+.music_item:has(button[data-state="open"]) .played:last-child {
+			z-index: 1 !important;
+		opacity: 1 !important ;
+	& > .played_icon {
+		display: none !important;
+	}
+
+	& > .music_action {
+		z-index: 1;
+		opacity: 1;
+	}
+}
+
+.music_item:has(button[data-state="open"]) .played:first-child {
+			z-index: -1 !important;
+		opacity: 0 !important ;
+}
+
+.music_item:hover .played {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	right: 8px;
+	width: 16px;
+	height: 16px;
+
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	border-radius: 100%;
+	padding: 8px;
+
+	& > .played_icon {
+		display: none !important;
+	}
+
+	& > .music_action {
+		z-index: 1;
+		opacity: 1;
+	}
 }
 </style>

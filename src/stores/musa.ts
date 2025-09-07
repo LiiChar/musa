@@ -86,7 +86,7 @@ export const useMusa = defineStore('musa', {
 			) {
 				const currentTime = await getTime();
 
-				this.time = currentTime * 1000;
+				this.time = Math.floor(currentTime * 1000);
 				return true;
 			} else {
 				if (
@@ -101,16 +101,36 @@ export const useMusa = defineStore('musa', {
 		},
 		async timeSeek(time: number) {
 			await sT(time);
-			this.time = time;
+			const currentTime = await getTime();
+			this.time = Math.floor(currentTime * 1000);
 		},
 		async finish() {
-			console.log(this.repeat && this.music);
-
 			if (this.repeat && this.music) {
 				await this.setMusic(this.music);
 			} else {
 				this.nextMusic();
 			}
+		},
+		async removeMusicFromPlaylist(music: Music) {
+			const filtredPaths = this.musicList
+				.filter((m) => m.path !== music.path)
+				.map((m) => m.path);
+
+			const musics = await getMusics(filtredPaths);
+			this.setMusics(musics);
+			const store = await load('music.json');
+
+			const playlists =
+				(await store.get<Record<string, string[]>>('musics')) ?? {};
+
+			const newPlalylistItem: Record<string, string[]> = {};
+
+			newPlalylistItem[this.playlist] = filtredPaths;
+			await store.set('musics', {
+				...playlists,
+				...newPlalylistItem,
+			});
+			this.setPlaylists(filtredPaths);
 		},
 		async fetchMusics(paths: string[]) {
 			const musics = await getMusics(paths);
@@ -152,7 +172,18 @@ export const useMusa = defineStore('musa', {
 		toggleShuffle() {
 			this.shuffle = !this.shuffle;
 		},
-		setPlaylist(playlist: string) {
+		async getCurrentPlaylist() {
+			const store = await load('music.json');
+			const currentPlaylist =
+				(await store.get<string>('playlist')) ?? this.playlist;
+			if (this.playlist !== currentPlaylist) {
+				this.setPlaylist(currentPlaylist);
+			}
+			return currentPlaylist;
+		},
+		async setPlaylist(playlist: string) {
+			const store = await load('music.json');
+			await store.set('playlist', playlist);
 			this.playlist = playlist;
 		},
 		async addPlaylist(playlist: string) {

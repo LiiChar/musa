@@ -72,7 +72,7 @@ const handleSpaceDown = (e: KeyboardEvent) => {
 onMounted(async () => {
 	updateTimeInterval = setInterval(async () => {
 		await musaStore.playing();
-	}, 1000);
+	}, 500);
 
 	window.addEventListener('keydown', handleSpaceDown);
 });

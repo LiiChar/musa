@@ -1,16 +1,17 @@
+use std::collections::VecDeque;
 use std::fs::File;
 use std::sync::{Arc, Mutex};
-use std::collections::VecDeque;
 use std::time::Instant;
 
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use symphonia::core::audio::SampleBuffer;
 use symphonia::core::codecs::{Decoder, DecoderOptions, CODEC_TYPE_NULL};
 use symphonia::core::errors::Error as SymphoniaError;
-use symphonia::core::formats::{FormatReader, FormatOptions, SeekMode, SeekTo};
+use symphonia::core::formats::{FormatOptions, FormatReader, SeekMode, SeekTo};
 use symphonia::core::io::{MediaSourceStream, MediaSourceStreamOptions};
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
+use symphonia::core::units::Time;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -50,7 +51,7 @@ pub struct PlayerState {
     pub start_time: Instant,
     pub sample_rate: f32,
     pub pos: f32,
-    pub last_ts: u64, // новый — timestamp последнего пакета
+    pub last_ts: u64, // timestamp последнего пакета
 }
 
 impl Player {
@@ -127,17 +128,17 @@ impl Player {
         Ok(Player { state, stream })
     }
 
-fn decode_next_packet(state: &mut PlayerState) {
-    if let Ok(packet) = state.format.next_packet() {
-        state.last_ts = packet.ts(); // сохраняем ts
+    fn decode_next_packet(state: &mut PlayerState) {
+        if let Ok(packet) = state.format.next_packet() {
+            state.last_ts = packet.ts(); // сохраняем ts
 
-        if let Ok(decoded) = state.decoder.decode(&packet) {
-            let mut buf = SampleBuffer::<f32>::new(decoded.capacity() as u64, *decoded.spec());
-            buf.copy_interleaved_ref(decoded);
-            state.buffer.extend(buf.samples());
+            if let Ok(decoded) = state.decoder.decode(&packet) {
+                let mut buf = SampleBuffer::<f32>::new(decoded.capacity() as u64, *decoded.spec());
+                buf.copy_interleaved_ref(decoded);
+                state.buffer.extend(buf.samples());
+            }
         }
     }
-}
 
     pub fn fill_buffer(state: &mut PlayerState, data: &mut [f32]) {
         if state.paused {
@@ -164,14 +165,15 @@ fn decode_next_packet(state: &mut PlayerState) {
             };
 
             *d = sample * state.volume;
-            state.pos += 1.0;
+            state.pos += state.speed;
 
             if state.pos >= state.buffer.len() as f32 {
                 let drop = state.pos.floor() as usize;
-                for _ in 0..drop.min(state.buffer.len()) {
+                let actual_drop = drop.min(state.buffer.len());
+                for _ in 0..actual_drop {
                     state.buffer.pop_front();
                 }
-                state.pos = 0.0;
+                state.pos -= actual_drop as f32;
             }
         }
     }
@@ -214,33 +216,40 @@ fn decode_next_packet(state: &mut PlayerState) {
             return Err(PlayerError::UnsupportedFormat);
         }
 
-        let time = sec as u64 * s.sample_rate as u64;
         s.format
             .seek(
-                SeekMode::Accurate,
+                SeekMode::Coarse,
                 SeekTo::Time {
-                    time: time.into(),
+                    time: Time::from(sec as f64),
                     track_id: None,
                 },
             )
             .map_err(|_| PlayerError::SeekFailed)?;
 
+        s.decoder.reset();
         s.buffer.clear();
         s.pos = 0.0;
 
-        Player::decode_next_packet(&mut s);
+        // Декодируем несколько пакетов
+        for _ in 0..5 {
+            if s.buffer.len() < 8192 {
+                Player::decode_next_packet(&mut s);
+            } else {
+                break;
+            }
+        }
 
         Ok(sec)
     }
 
-pub fn current_time(&self) -> Result<f32, PlayerError> {
-    let s = self.state.lock().map_err(|_| PlayerError::MutexPoisoned)?;
+    pub fn current_time(&self) -> Result<f32, PlayerError> {
+        let s = self.state.lock().map_err(|_| PlayerError::MutexPoisoned)?;
 
-    let packet_time = s.last_ts as f32 / s.sample_rate;
-    let buffer_offset = s.pos / s.sample_rate;
+        let packet_time = s.last_ts as f32 / s.sample_rate;
+        let buffer_offset = s.pos / s.sample_rate;
 
-    Ok(packet_time + buffer_offset)
-}
+        Ok(packet_time + buffer_offset)
+    }
 }
 
 impl Drop for Player {

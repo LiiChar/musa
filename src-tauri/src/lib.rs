@@ -2,16 +2,16 @@ mod music;
 mod player;
 
 use std::{
-    path::Path, sync::{Arc, Mutex}
+    path::Path,
+    sync::{Arc, Mutex},
 };
 
 use tauri::{Manager, State};
 
+use crate::music::{extract_waveform, extract_waveform_streaming, get_music, Track};
 use crate::player::{Player, PlayerError};
-use crate::music::{extract_waveform, get_music, Track};
 
 use thiserror::Error;
-
 
 #[derive(Error, Debug)]
 pub enum MusicError {
@@ -22,7 +22,6 @@ pub enum MusicError {
     #[error("Mutex poisoned")]
     MutexPoisoned,
 }
-
 
 #[derive(Default)]
 struct AppState {
@@ -40,13 +39,17 @@ async fn set_music(state: State<'_, Mutex<AppState>>, path: String) -> Result<()
         return Err(MusicError::Io(std::io::Error::new(
             std::io::ErrorKind::NotFound,
             "File does not exist",
-        )).to_string());
+        ))
+        .to_string());
     }
 
     std::fs::File::open(&path).expect("File does not exist");
 
-    let mut state = state.lock().map_err(|_| MusicError::MutexPoisoned).expect("State is poisoned");
-      
+    let mut state = state
+        .lock()
+        .map_err(|_| MusicError::MutexPoisoned)
+        .expect("State is poisoned");
+
     let player = Player::new(&path).expect("Failed to create player");
     state.player = Some(Arc::new(Mutex::new(player)));
     state.current_path = Some(path);
@@ -115,7 +118,7 @@ async fn set_volume(state: State<'_, Mutex<AppState>>, volume: f32) -> Result<()
 
 #[tauri::command]
 async fn get_wave(path: String, points: usize) -> Result<Vec<f32>, String> {
-    let wave = extract_waveform(path, points).await;
+    let wave = extract_waveform_streaming(path, points).await;
 
     match wave {
         Ok(w) => Ok(w),
@@ -135,10 +138,9 @@ pub fn run() {
         })
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
-            get_musics, set_music, play_music, stop_music, set_volume, set_speed, seek_music, get_wave, get_time
+            get_musics, set_music, play_music, stop_music, set_volume, set_speed, seek_music,
+            get_wave, get_time
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
-
-

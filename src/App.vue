@@ -72,8 +72,9 @@ watch(visible, (v) => {
 		z-index: 10;
 		left: 0;
 		background: var(--app-gradient);
+
 		top: 0;
-		backdrop-filter: blur(0px);
+		backdrop-filter: blur(8px);
 		height: 100%;
 		width: 300px;
 		max-width: 100%;

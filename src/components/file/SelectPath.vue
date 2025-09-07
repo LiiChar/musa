@@ -48,8 +48,7 @@ const handleDirDialog = async () => {
 							variant="ghost"
 							@click="handleFileDialog"
 						>
-							<Icon height="24" icon="mdi-light:file" /> Нажмите чтобы выбрать
-							файл</Button
+							<Icon height="24" icon="mdi-light:file" />Файлы</Button
 						></DropdownMenuItem
 					>
 					<DropdownMenuItem
@@ -58,8 +57,7 @@ const handleDirDialog = async () => {
 							variant="ghost"
 							@click="handleDirDialog"
 						>
-							<Icon height="24" icon="mdi-light:folder" /> Нажмите чтобы выбрать
-							папку</Button
+							<Icon height="24" icon="mdi-light:folder" />Папку</Button
 						></DropdownMenuItem
 					>
 					<DropdownMenuArrow class="dropdawn-arrow" />
