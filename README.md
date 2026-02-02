@@ -1,7 +1,16 @@
-# Tauri + Vue + TypeScript
+# Musa
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+**Musa** — это современный минималистичный музыкальный плеер, созданный для тех, кто ценит удобство и эстетику. Лёгкий интерфейс с мягкой прозрачностью и эффектом блюра гармонично вписывается в рабочее пространство и не отвлекает от главного — вашей музыки.
 
-## Recommended IDE Setup
+### Поддержка форматов
 
-- [VS Code](https://code.visualstudio.com/) + [Vue - Official](https://marketplace.visualstudio.com/items?itemName=Vue.volar) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+Плеер воспроизводит практически все популярные форматы: **mp3, flac, wav, ogg, m4a, aac, wma, opus, aiff, alac, mpc**.
+
+### Функции
+
+*   Управление громкостью и плавный контроль воспроизведения.
+*   Повтор песен и случайное воспроизведение.
+*   Быстрый переход к следующему и предыдущему треку.
+*   Удобный поиск по плейлисту.
+*   Создание и сохранение собственных плейлистов.
+*   **Динамическая визуализация** — фон приложения автоматически адаптируется под обложку песни, создавая атмосферу под настроение.
