@@ -3,7 +3,7 @@
 	--secondary: rgb(92, 88, 88); /* #222222 */
 	--border: rgb(51, 51, 51); /* #333333 */
 	--foreground: rgb(255, 255, 255); /* #fff */
-	--secondary-foreground: rgb(170, 170, 170); /* #aaa */
+	--secondary-foreground: rgb(226, 225, 225); /* #aaa */
 
 	/* Прозрачные версии для стекла */
 	--background-glass: rgba(17, 17, 17, 0.2);
@@ -23,9 +23,23 @@
 	height: 100lvh;
 
 	background: var(--app-gradient);
+	background-size: 200% 200%;
+	animation: gradient-shift 15s ease infinite;
 	backdrop-filter: blur(10px);
 	-webkit-backdrop-filter: blur(10px);
-	transition: background 3s ease;
+	transition: background 1s ease;
+}
+
+@keyframes gradient-shift {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
 }
 
 body {
@@ -35,6 +49,7 @@ body {
 	font-size: 14px;
 	height: 100vh;
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	overflow: hidden;
 }
 
 button {

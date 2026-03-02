@@ -1,0 +1,42 @@
+{
+  "app": {
+    "title": "Musa"
+  },
+  "sidebar": {
+    "playlist": "Playlist",
+    "minutesRemaining": "minutes remaining",
+    "searchPlaceholder": "Search music..."
+  },
+  "player": {
+    "noMusic": "No music selected"
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "language": "Language",
+    "audio": "Audio",
+    "volume": "Volume",
+    "crossfade": "Crossfade",
+    "normalizeAudio": "Normalize audio",
+    "presets": {
+      "warm": "Warm",
+      "cool": "Cool",
+      "forest": "Forest",
+      "ocean": "Ocean",
+      "sunset": "Sunset",
+      "midnight": "Midnight",
+      "rose": "Rose",
+      "golden": "Golden"
+    }
+  },
+  "common": {
+    "play": "Play",
+    "pause": "Pause",
+    "next": "Next",
+    "previous": "Previous",
+    "repeat": "Repeat",
+    "shuffle": "Shuffle",
+    "volume": "Volume"
+  }
+}

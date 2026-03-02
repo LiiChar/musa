@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Button from '../ui/button.vue';
-import { Icon } from '@iconify/vue';
+import IconMoreVertical from '~icons/lucide/more-vertical';
+import IconDelete from '~icons/lucide/trash-2';
 import {
 	DropdownMenuArrow,
 	DropdownMenuContent,
@@ -8,6 +9,7 @@ import {
 	DropdownMenuPortal,
 	DropdownMenuRoot,
 	DropdownMenuTrigger,
+	DropdownMenuSeparator,
 } from 'reka-ui';
 import { useMusa } from '../../stores/musa';
 import { storeToRefs } from 'pinia';
@@ -26,33 +28,28 @@ const handleDelete = async () => {
 	<div class="music_dialog_selector_wrapper">
 		<DropdownMenuRoot as-child class="dropdawn-root">
 			<DropdownMenuTrigger class="dropdawn-trigger"
-				><Icon height="22" icon="mdi:dots-vertical"
+				><IconMoreVertical
 			/></DropdownMenuTrigger>
 			<DropdownMenuPortal >
 				<DropdownMenuContent :as-child="true" class="dropdawn-content">
-					<!-- <DropdownMenuItem
-						><Button class="btn_dialog_selector" variant="ghost">
-							<Icon height="24" icon="ic:round-drive-file-rename-outline" />
-							Переименовать</Button
-						></DropdownMenuItem
-					> -->
-					<!-- <DropdownMenuItem
-						><Button
-							@click="handleClear"
-							class="btn_dialog_selector"
-							variant="ghost"
-						>
-							<Icon height="24" icon="mdi:eraser" /> Очистить</Button
-						></DropdownMenuItem
-					> -->
 					<DropdownMenuItem
 						><Button
 							@click="handleDelete"
 							class="btn_dialog_selector"
 							variant="ghost"
 						>
-							<Icon height="24" icon="material-symbols:delete" />
-							Удалить</Button
+							<IconDelete />
+							<span>Удалить</span></Button
+						></DropdownMenuItem
+					>
+					<DropdownMenuSeparator class="dropdawn-separator" />
+					<DropdownMenuItem
+						><Button
+							class="btn_dialog_selector"
+							variant="ghost"
+						>
+							<IconMoreVertical class="rotated-icon" />
+							<span>Действия</span></Button
 						></DropdownMenuItem
 					>
 					<DropdownMenuArrow class="dropdawn-arrow" />
@@ -63,6 +60,17 @@ const handleDelete = async () => {
 </template>
 
 <style>
+.music_dialog_selector_wrapper {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.music_dialog_selector_wrapper .dropdawn-root {
+	position: relative;
+}
+
 .music_dialog_selector_wrapper .dropdawn-trigger {
   padding: 0 !important;
   background: transparent !important;
@@ -78,30 +86,60 @@ const handleDelete = async () => {
 
 .music_action .dropdawn-trigger {
   padding: 4px !important;
+  width: 32px !important;
+  height: 32px !important;
 }
 
 .dropdawn-trigger svg {
-  height: 100%;
-  width: 100%;
-} 
+  width: 18px;
+  height: 18px;
+}
 
 .music_dialog_selector_wrapper .dropdawn-arrow path {
 	fill: var(--secondary-glass) !important;
 }
-.music_dialog_selector_wrapper .dropdawn-content {
-	background-color: var(--foregrounds) !important;
 
-	border-radius: 6px;
-	backdrop-filter: blur(10px) !important;
+.music_dialog_selector_wrapper .dropdawn-content {
+	background-color: var(--secondary-glass) !important;
+	border: 1px solid var(--border-glass);
+	border-radius: 8px;
+	backdrop-filter: blur(12px) !important;
+	padding: 4px;
+	min-width: 140px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+	z-index: 1000;
 }
-.music_dialog_selector_wrapper .dialog_selector_wrapper {
-	display: flex;
-	gap: 6px;
-	align-items: center;
-}
+
 .music_dialog_selector_wrapper .btn_dialog_selector {
-	gap: 6px;
+	gap: 8px;
 	width: 100%;
-	justify-content: start !important;
+	justify-content: flex-start !important;
+	padding: 6px 8px;
+	font-size: 13px;
+	border-radius: 4px;
+	transition: all 0.15s ease;
+	background: transparent !important;
+	border: none !important;
+	color: var(--foreground);
+}
+
+.music_dialog_selector_wrapper .btn_dialog_selector:hover {
+	background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.music_dialog_selector_wrapper .btn_dialog_selector svg {
+	width: 16px;
+	height: 16px;
+	flex-shrink: 0;
+}
+
+.dropdawn-separator {
+	height: 1px;
+	background: var(--border-glass);
+	margin: 4px 0;
+}
+
+.rotated-icon {
+	transform: rotate(90deg);
 }
 </style>

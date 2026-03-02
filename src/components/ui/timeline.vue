@@ -21,10 +21,6 @@ const waves = ref<number[]>([]);
 // ресайзер для отслеживания ширины
 let observer: ResizeObserver;
 
-// watch(containerWidth, async w => {
-// 	waves.value = await getWave(path, Math.floor(w / (barWidth + gap)));
-// });
-
 watchEffect(async () => {
 	waves.value = await getWave(
 		path,
@@ -53,10 +49,26 @@ const progress = computed(() => {
 	if (duration <= 0) return 0;
 	return Math.min(100, Math.max(0, (time / duration) * 100));
 });
+
+// Handle direct click on timeline for accurate positioning
+const handleTimelineClick = (event: MouseEvent) => {
+	if (!container.value || duration <= 0) return;
+	
+	const rect = container.value.getBoundingClientRect();
+	const clickX = event.clientX - rect.left;
+	const clickPercentage = (clickX / rect.width) * 100;
+	const clampedPercentage = Math.min(100, Math.max(0, clickPercentage));
+	
+	onChange([clampedPercentage]);
+};
 </script>
 
 <template>
-	<div class="controller_container" ref="container">
+	<div 
+		class="controller_container" 
+		ref="container"
+		@click="handleTimelineClick"
+	>
 		<!-- SVG с динамическим количеством палок -->
 		<svg
 			class="bitrate_svg"
@@ -64,6 +76,7 @@ const progress = computed(() => {
 			height="50"
 			:viewBox="`0 0 ${containerWidth} 50`"
 			xmlns="http://www.w3.org/2000/svg"
+			style="pointer-events: none;"
 		>
 			<!-- Базовые линии -->
 			<g opacity="0.3">
@@ -109,7 +122,7 @@ const progress = computed(() => {
 			<SliderTrack class="SliderTrack">
 				<SliderRange class="SliderRange" />
 			</SliderTrack>
-			<SliderThumb class="SliderThumb" aria-label="Volume" />
+			<SliderThumb class="SliderThumb" aria-label="Timeline scrubber" />
 		</SliderRoot>
 	</div>
 </template>

@@ -4,12 +4,20 @@ import Main from './widgets/layout/Main.vue';
 import { SplitterGroup, SplitterPanel, SplitterResizeHandle } from 'reka-ui';
 import { storeToRefs } from 'pinia';
 import { useLayout } from './stores/layout';
-import { ref, watch } from 'vue';
+import { ref, watch, provide } from 'vue';
 
 const layout = useLayout();
 
 const { visible } = storeToRefs(layout);
 const isCollapsed = ref(true);
+
+const mainRef = ref<InstanceType<typeof Main> | null>(null);
+
+provide('mainComponent', {
+	navigateTo: (page: 'player' | 'settings') => {
+		mainRef.value?.navigateTo(page);
+	},
+});
 
 watch(isCollapsed, (v) => {
 	layout.visible.sidebar = v;
@@ -44,8 +52,9 @@ watch(visible, (v) => {
 				:min-size="0"
 				:default-size="70"
 				:max-size="100"
-				><Main class="main_container"
-			/></SplitterPanel>
+			>
+				<Main ref="mainRef" class="main_container" />
+			</SplitterPanel>
 		</SplitterGroup>
 	</main>
 </template>

@@ -1,0 +1,42 @@
+{
+  "app": {
+    "title": "Musa"
+  },
+  "sidebar": {
+    "playlist": "Плейлист",
+    "minutesRemaining": "минут осталось",
+    "searchPlaceholder": "Поиск музыки..."
+  },
+  "player": {
+    "noMusic": "Музыка не выбрана"
+  },
+  "settings": {
+    "title": "Настройки",
+    "appearance": "Внешний вид",
+    "theme": "Тема",
+    "language": "Язык",
+    "audio": "Аудио",
+    "volume": "Громкость",
+    "crossfade": "Плавный переход",
+    "normalizeAudio": "Нормализация аудио",
+    "presets": {
+      "warm": "Тёплая",
+      "cool": "Прохладная",
+      "forest": "Лесная",
+      "ocean": "Океан",
+      "sunset": "Закат",
+      "midnight": "Полночь",
+      "rose": "Роза",
+      "golden": "Золотая"
+    }
+  },
+  "common": {
+    "play": "Воспроизвести",
+    "pause": "Пауза",
+    "next": "Следующий",
+    "previous": "Предыдущий",
+    "repeat": "Повтор",
+    "shuffle": "Перемешать",
+    "volume": "Громкость"
+  }
+}

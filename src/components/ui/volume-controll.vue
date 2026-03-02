@@ -1,11 +1,21 @@
 <script setup lang="ts">
-import { Icon } from '@iconify/vue';
 import { SliderRange, SliderRoot, SliderThumb, SliderTrack } from 'reka-ui';
 import Button from './button.vue';
+import IconVolumeX from '~icons/lucide/volume-x';
+import IconVolume2 from '~icons/lucide/volume-2';
+
 const { volume, onChange } = defineProps<{
 	volume: number;
 	onChange: (payload: number[] | undefined) => void;
 }>();
+
+const handleMute = () => {
+	if (volume > 0) {
+		onChange([0]);
+	} else {
+		onChange([50]);
+	}
+};
 </script>
 
 <template>
@@ -16,13 +26,20 @@ const { volume, onChange } = defineProps<{
 			max_thumb: volume > 50,
 		}"
 	>
-		<Button
-			:class="{ controller_icons: true, active: volume == 0 }"
-			:style="{ scale: 1.0 + (50 - volume) / 20000 }"
-			variant="ghost"
-		>
-			<Icon @click="onChange([0])" height="24" icon="lucide:volume-1" />
-		</Button>
+		<!-- Volume level indicator -->
+		<div class="volume_indicator">
+			<div class="volume_bars">
+				<div 
+					v-for="i in 4" 
+					:key="i"
+					:class="{
+						volume_bar: true,
+						active: volume > (i - 1) * 25
+					}"
+				/>
+			</div>
+		</div>
+
 		<SliderRoot
 			@update:model-value="onChange"
 			:model-value="[volume]"
@@ -35,12 +52,16 @@ const { volume, onChange } = defineProps<{
 			</SliderTrack>
 			<SliderThumb class="SliderThumb" aria-label="Volume" />
 		</SliderRoot>
+
+		<!-- Mute button -->
 		<Button
-			:class="{ controller_icons: true, active: volume == 100 }"
-			:style="{ scale: 1.0 + (volume - 50) / 2000 }"
+			class="mute_button"
+			@click="handleMute"
 			variant="ghost"
+			title="Mute/Unmute"
 		>
-			<Icon @click="onChange([100])" height="24" icon="lucide:volume-2" />
+			<IconVolumeX v-if="volume === 0" />
+			<IconVolume2 v-else />
 		</Button>
 	</div>
 </template>
@@ -120,5 +141,72 @@ const { volume, onChange } = defineProps<{
 	gap: 12px;
 	align-items: center;
 	position: relative;
+}
+
+.volume_indicator {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.volume_bars {
+	display: flex;
+	align-items: flex-end;
+	gap: 2px;
+	height: 16px;
+}
+
+.volume_bar {
+	width: 3px;
+	height: 4px;
+	background: var(--secondary-foreground);
+	border-radius: 1px;
+	transition: all 0.15s ease;
+}
+
+.volume_bar:nth-child(1).active {
+	height: 4px;
+	background: var(--foreground);
+}
+
+.volume_bar:nth-child(2).active {
+	height: 8px;
+	background: var(--foreground);
+}
+
+.volume_bar:nth-child(3).active {
+	height: 12px;
+	background: var(--foreground);
+}
+
+.volume_bar:nth-child(4).active {
+	height: 16px;
+	background: var(--foreground);
+}
+
+.volume_icon {
+	width: 18px;
+	height: 18px;
+	color: var(--foreground);
+	display: none;
+}
+
+.mute_button {
+	width: 28px;
+	height: 28px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	transition: all 0.2s ease;
+}
+
+.mute_button:hover {
+	background: rgba(255, 255, 255, 0.1);
+}
+
+.mute_button svg {
+	width: 18px;
+	height: 18px;
 }
 </style>

@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { useMusa } from '../../stores/musa';
-import { Icon } from '@iconify/vue';
 import VolumeControll from '../../components/ui/volume-controll.vue';
 import { getUrl } from '../../utils/url';
-import { DEFAULT_IMAGE } from '../../const/image';
 import SidebarToggle from '../../components/ui/sidebar-toggle.vue';
 import Button from '../../components/ui/button.vue';
-import { onBeforeUnmount, onMounted, onUnmounted, watch } from 'vue';
+import { onBeforeUnmount, onMounted, onUnmounted, watch, inject } from 'vue';
 import { formattedTime } from '../../utils/time';
 import Timeline from '../../components/ui/timeline.vue';
 import { useLayout } from '../../stores/layout';
@@ -15,9 +13,23 @@ import { listen } from '@tauri-apps/api/event';
 // ts-ignore
 import colorthief from 'colorthief';
 import { createSoftRadialGradient } from '../../utils/color';
+import IconPlay from '~icons/lucide/play';
+import IconPause from '~icons/lucide/pause';
+import IconSkipPrevious from '~icons/lucide/skip-back';
+import IconSkipNext from '~icons/lucide/skip-forward';
+import IconShuffle from '~icons/lucide/shuffle';
+import IconRepeat from '~icons/lucide/repeat';
+import IconSettings from '~icons/lucide/settings';
+import IconVinyl from '~icons/lucide/disc-3';
+import IconVolume from '~icons/lucide/volume';
+import IconVolume1 from '~icons/lucide/volume-1';
+import IconVolume2 from '~icons/lucide/volume-2';
+import IconVolumeX from '~icons/lucide/volume-x';
 
 const musaStore = useMusa();
 const layoutStore = useLayout();
+
+const mainComponent = inject<{ navigateTo: (page: 'player' | 'settings') => void } | null>('mainComponent', null);
 
 const { music, volume, isPlaying, time } = storeToRefs(musaStore);
 const { visible } = storeToRefs(layoutStore);
@@ -30,6 +42,10 @@ const handlePlayMusic = async () => {
 	} else {
 		musaStore.playMusic();
 	}
+};
+
+const navigateToSettings = () => {
+	mainComponent?.navigateTo('settings');
 };
 
 watch(music, async () => {
@@ -115,14 +131,11 @@ const handleChangeTime = async (payload: number[] | undefined) => {
 					v-if="music.cover"
 					class="music_logo"
 					:src="getUrl(music.cover)"
-					alt="Логотип музыки"
+					alt="Album cover"
 				/>
-				<Icon
-					icon="iconamoon:music-1-fill"
-					v-else="music.cover"
+				<IconVinyl
+					v-else
 					class="music_logo"
-					:src="getUrl(DEFAULT_IMAGE)"
-					alt="Логотип музыки"
 					:style="{
 						border: '1px solid var(--secondary-glass)',
 						background: '#ffffff21',
@@ -156,34 +169,26 @@ const handleChangeTime = async (payload: number[] | undefined) => {
 						variant="rounded"
 						class="music_control_item music_control_prev"
 						@click="musaStore.prevMusic"
+						title="Previous track"
 					>
-						<Icon height="16" icon="fluent:previous-16-filled" />
+						<IconSkipPrevious />
 					</Button>
 					<Button
 						variant="rounded"
 						@click="handlePlayMusic"
 						class="music_control_item music_control_play"
+						:title="isPlaying ? 'Pause' : 'Play'"
 					>
-						<Icon
-							v-if="isPlaying"
-							height="22"
-							icon="line-md:play-filled-to-pause-transition"
-						/>
-						<Icon
-							v-else="isPlaying"
-							height="22"
-							icon="line-md:pause-to-play-filled-transition"
-						/>
+						<IconPause v-if="isPlaying" />
+						<IconPlay v-else />
 					</Button>
 					<Button
 						variant="rounded"
 						class="music_control_item music_control_next"
+						@click="musaStore.nextMusic"
+						title="Next track"
 					>
-						<Icon
-							height="16"
-							icon="fluent:next-16-filled"
-							@click="musaStore.nextMusic"
-						/>
+						<IconSkipNext />
 					</Button>
 				</div>
 			</div>
@@ -196,6 +201,7 @@ const handleChangeTime = async (payload: number[] | undefined) => {
 						variant="rounded"
 						:active="visible.sidebar"
 						@click="layoutStore.toggleVisibleSidebar"
+						title="Toggle sidebar"
 					>
 						<SidebarToggle :height="16" :is-toggle="visible.sidebar" />
 					</Button>
@@ -203,7 +209,8 @@ const handleChangeTime = async (payload: number[] | undefined) => {
 						variant="rounded"
 						@click="musaStore.toggleShuffle"
 						:active="musaStore.shuffle"
-						><Icon height="16" icon="solar:shuffle-linear"
+						title="Shuffle"
+						><IconShuffle
 					/></Button>
 				</div>
 				<div class="music_settings_container">
@@ -211,14 +218,16 @@ const handleChangeTime = async (payload: number[] | undefined) => {
 						variant="rounded"
 						@click="musaStore.toggleRepeat"
 						:active="musaStore.repeat"
-						><Icon height="16" icon="mdi-light:repeat"
+						title="Repeat"
+						><IconRepeat
 					/></Button>
 					<Button
 						variant="rounded"
-						@click="layoutStore.toggleVisiblePlaylist"
-						:active="layoutStore.visible.playlist"
-						><Icon height="18" icon="mdi-light:menu"
-					/></Button>
+						@click="navigateToSettings"
+						title="Settings"
+					>
+						<IconSettings />
+					</Button>
 				</div>
 			</div>
 		</div>
@@ -228,15 +237,17 @@ const handleChangeTime = async (payload: number[] | undefined) => {
 			variant="rounded"
 			:active="visible.sidebar"
 			@click="layoutStore.toggleVisibleSidebar"
+			title="Toggle sidebar"
 		>
 			<SidebarToggle :height="17" :is-toggle="visible.sidebar" />
 		</Button>
-		<Icon height="68" icon="svg-spinners:bars-scale-middle" />
+		<IconVinyl height="68" />
 		<Button
 			variant="rounded"
 			@click="layoutStore.toggleVisiblePlaylist"
 			:active="layoutStore.visible.playlist"
-			><Icon height="17" icon="mdi-light:menu"
+			title="Playlist"
+			><IconVinyl height="20"
 		/></Button>
 	</div>
 </template>
@@ -285,20 +296,21 @@ const handleChangeTime = async (payload: number[] | undefined) => {
 }
 
 .music_logo_wrapper {
-	width: 100%;
+	width: calc(100% - 60px);
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	aspect-ratio: 1 / 1;
+
 }
 
 .music_logo {
-	width: 60%;
+	width: 100%;
 	height: 100%;
-	margin: 0 auto;
-	object-fit: cover;
 	aspect-ratio: 1 / 1;
+	object-fit: cover;
 	border-radius: 24px;
-	box-shadow: rgba(100, 100, 111, 0.4) 0px 7px 29px 0px;
+	box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 
 .music_timeline {

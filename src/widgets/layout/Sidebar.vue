@@ -6,16 +6,19 @@ import { useMusa } from '../../stores/musa';
 import { getMusics } from '../../api/music';
 import { load } from '@tauri-apps/plugin-store';
 import { useLayout } from '../../stores/layout';
-import { Icon } from '@iconify/vue';
 import Input from '../../components/ui/input.vue';
 import Button from '../../components/ui/button.vue';
 import PlaylistList from '../../components/playlist/PlaylistList.vue';
 import SelectPath from '../../components/file/SelectPath.vue';
 import PlaylistAction from '../../components/playlist/PlaylistAction.vue';
 import SidebarToggle from '../../components/ui/sidebar-toggle.vue';
+import { useI18n } from '../../locales';
+import IconPlaylist from '~icons/lucide/list-music';
+import IconSearch from '~icons/lucide/search';
 
 const musa = useMusa();
 const layout = useLayout();
+const { t } = useI18n();
 
 const { musicList, music, playlist, playlists, time } = storeToRefs(musa);
 const { visible } = storeToRefs(layout);
@@ -87,9 +90,9 @@ const timeRemain = computed(() => {
 	>
 		<div class="sidebar_header">
 			<div class="sidebar_info">
-				<div class="sidebar_title">Playlist - {{ playlist }}</div>
+				<div class="sidebar_title">{{ t('sidebar.playlist') }} - {{ playlist }}</div>
 				<div class="sidebar_description">
-					{{ Math.ceil((timeRemain - time) / 1000 / 60) }} minutes remaining
+					{{ Math.ceil((timeRemain - time) / 1000 / 60) }} {{ t('sidebar.minutesRemaining') }}
 				</div>
 			</div>
 			<div class="sidebar_header_actions">
@@ -98,6 +101,7 @@ const timeRemain = computed(() => {
 					:active="visible.sidebar"
 					@click="layout.toggleVisibleSidebar"
 					class="sidebar_toggle"
+					title="Toggle sidebar"
 				>
 					<SidebarToggle :height="17" :is-toggle="visible.sidebar" />
 				</Button>
@@ -106,7 +110,8 @@ const timeRemain = computed(() => {
 					@click="layout.toggleVisiblePlaylist"
 					:active="layout.visible.playlist"
 					class="sidebar_toggle"
-					><Icon height="18" icon="mdi-light:menu"
+					title="Toggle playlist view"
+					><IconPlaylist
 				/></Button>
 			</div>
 		</div>
@@ -130,7 +135,7 @@ const timeRemain = computed(() => {
 		</div>
 		<transition name="fade-slide">
 			<div v-if="isSearch" class="sidebar_search">
-				<Input placeholder="Input music name" v-model="searchedString" />
+				<Input :placeholder="t('sidebar.searchPlaceholder')" v-model="searchedString" />
 			</div>
 		</transition>
 		<div
@@ -142,8 +147,9 @@ const timeRemain = computed(() => {
 					:active="isSearch"
 					variant="rounded"
 					@click="isSearch = !isSearch"
+					title="Search"
 				>
-					<Icon height="15" icon="material-symbols:search" />
+					<IconSearch />
 				</Button>
 				<SelectPath @select-path="handleSelectPaths" />
 				<PlaylistAction />
