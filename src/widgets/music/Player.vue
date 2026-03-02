@@ -11,6 +11,7 @@ import { onBeforeUnmount, onMounted, onUnmounted, watch } from 'vue';
 import { formattedTime } from '../../utils/time';
 import Timeline from '../../components/ui/timeline.vue';
 import { useLayout } from '../../stores/layout';
+import { listen } from '@tauri-apps/api/event';
 // ts-ignore
 import colorthief from 'colorthief';
 import { createSoftRadialGradient } from '../../utils/color';
@@ -69,7 +70,15 @@ const handleSpaceDown = (e: KeyboardEvent) => {
 	}
 };
 
+
+
 onMounted(async () => {
+	listen<string[]>("open-files", (event: any) => {
+		console.log(event);
+		
+		if (event.payload.length) musaStore.fetchMusics(event.payload);
+	});
+
 	updateTimeInterval = setInterval(async () => {
 		await musaStore.playing();
 	}, 500);

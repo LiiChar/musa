@@ -28,7 +28,7 @@ use walkdir::WalkDir;
 
 use symphonia::core::errors::Error;
 use symphonia::core::formats::{SeekMode, SeekTo};
-use symphonia::core::io::MediaSourceStreamOptions;
+use symphonia::core::units::Time;
 
 /// Формат вывода
 #[derive(ValueEnum, Clone, Debug)]
@@ -244,22 +244,18 @@ pub async fn extract_waveform<P: AsRef<Path> + Send + 'static>(
     let path = path.as_ref().to_path_buf();
 
     tokio::task::spawn_blocking(move || {
-        // Открываем файл
         let file = match File::open(&path) {
             Ok(file) => file,
             Err(e) => return Err(Box::new(e) as Box<dyn std::error::Error + Send + Sync>),
         };
 
-        // Создаем медиа источник
         let mss = MediaSourceStream::new(Box::new(file), Default::default());
 
-        // Создаем hint для определения формата файла
         let mut hint = Hint::new();
         if let Some(ext) = path.extension().and_then(|s| s.to_str()) {
             hint.with_extension(ext);
         }
 
-        // Пробуем определить формат файла
         let probed = match symphonia::default::get_probe().format(
             &hint,
             mss,
@@ -272,7 +268,6 @@ pub async fn extract_waveform<P: AsRef<Path> + Send + 'static>(
 
         let mut format = probed.format;
 
-        // Находим аудио трек
         let track = match format
             .tracks()
             .iter()
@@ -284,7 +279,6 @@ pub async fn extract_waveform<P: AsRef<Path> + Send + 'static>(
 
         let track_id = track.id;
 
-        // Создаем декодер
         let mut decoder = match symphonia::default::get_codecs()
             .make(&track.codec_params, &DecoderOptions::default())
         {
@@ -292,7 +286,6 @@ pub async fn extract_waveform<P: AsRef<Path> + Send + 'static>(
             Err(e) => return Err(Box::new(e) as Box<dyn std::error::Error + Send + Sync>),
         };
 
-        // Получаем параметры трека
         let channels = match track.codec_params.channels {
             Some(channels) => channels.count(),
             None => return Err(Box::from("no channels information")),
@@ -305,18 +298,15 @@ pub async fn extract_waveform<P: AsRef<Path> + Send + 'static>(
 
         println!("Channels: {}, Sample rate: {}", channels, sample_rate);
 
-        // Декодируем весь файл
         let mut all_samples = Vec::new();
 
         loop {
             let packet = match format.next_packet() {
                 Ok(packet) => packet,
                 Err(Error::IoError(ref err)) if err.kind() == std::io::ErrorKind::UnexpectedEof => {
-                    // Достигли конца файла
                     break;
                 }
                 Err(Error::ResetRequired) => {
-                    // Требуется сброс декодера
                     decoder.reset();
                     continue;
                 }
@@ -326,12 +316,10 @@ pub async fn extract_waveform<P: AsRef<Path> + Send + 'static>(
                 }
             };
 
-            // Проверяем, что пакет принадлежит нужному треку
             if packet.track_id() != track_id {
                 continue;
             }
 
-            // Декодируем пакет
             match decoder.decode(&packet) {
                 Ok(decoded) => {
                     let spec = *decoded.spec();
@@ -366,7 +354,6 @@ pub async fn extract_waveform<P: AsRef<Path> + Send + 'static>(
             return Ok(vec![0.0; points]);
         }
 
-        // Конвертируем в моно если нужно (берем среднее по каналам)
         let mono_samples: Vec<f32> = if channels > 1 {
             println!("Converting {} channels to mono", channels);
             let mut mono = Vec::with_capacity(all_samples.len() / channels);
@@ -383,7 +370,6 @@ pub async fn extract_waveform<P: AsRef<Path> + Send + 'static>(
 
         println!("Mono samples: {}", mono_samples.len());
 
-        // Создаем waveform
         let total_samples = mono_samples.len();
         let samples_per_point = total_samples / points;
 
@@ -395,7 +381,6 @@ pub async fn extract_waveform<P: AsRef<Path> + Send + 'static>(
         let mut result = Vec::with_capacity(points);
 
         if samples_per_point == 0 {
-            // Если семплов меньше чем точек, интерполируем
             println!("Interpolating: fewer samples than points");
             for i in 0..points {
                 let sample_idx = (i * total_samples) / points;
@@ -406,11 +391,9 @@ pub async fn extract_waveform<P: AsRef<Path> + Send + 'static>(
                 }
             }
         } else {
-            // Для каждой точки берем максимальное абсолютное значение в соответствующем сегменте
             for i in 0..points {
                 let start_idx = i * samples_per_point;
                 let end_idx = if i == points - 1 {
-                    // Для последней точки берем все оставшиеся семплы
                     total_samples
                 } else {
                     ((i + 1) * samples_per_point).min(total_samples)
@@ -435,14 +418,12 @@ pub async fn extract_waveform<P: AsRef<Path> + Send + 'static>(
 
         println!("Waveform created with {} points", result.len());
 
-        // Находим максимальное значение для нормализации
         let max_val = result
             .iter()
             .fold(0.0f32, |acc, &x| if x > acc { x } else { acc });
 
         println!("Max value before normalization: {}", max_val);
 
-        // Нормализуем результат для лучшей визуализации
         if max_val > 0.0 {
             for val in &mut result {
                 *val /= max_val;
@@ -452,7 +433,6 @@ pub async fn extract_waveform<P: AsRef<Path> + Send + 'static>(
             println!("Max value is 0, no normalization needed");
         }
 
-        // Выводим первые несколько значений для отладки
         println!(
             "First 10 waveform values: {:?}",
             &result[..result.len().min(10)]
@@ -463,7 +443,7 @@ pub async fn extract_waveform<P: AsRef<Path> + Send + 'static>(
     .await?
 }
 
-// Альтернативная версия для больших файлов с потоковой обработкой
+
 pub async fn extract_waveform_streaming<P: AsRef<Path> + Send + 'static>(
     path: P,
     points: usize,
@@ -471,7 +451,6 @@ pub async fn extract_waveform_streaming<P: AsRef<Path> + Send + 'static>(
     let path = path.as_ref().to_path_buf();
 
     tokio::task::spawn_blocking(move || {
-        // открываем файл
         let file = File::open(&path)?;
         let mss = MediaSourceStream::new(Box::new(file), Default::default());
 
@@ -497,6 +476,16 @@ pub async fn extract_waveform_streaming<P: AsRef<Path> + Send + 'static>(
 
         let track_id = track.id;
 
+        let sample_rate = track
+            .codec_params
+            .sample_rate
+            .ok_or("no sample rate")?;
+
+        let total_frames = track
+            .codec_params
+            .n_frames
+            .ok_or("unknown duration (cannot seek precisely)")?;
+
         let mut decoder = symphonia::default::get_codecs()
             .make(&track.codec_params, &DecoderOptions::default())?;
 
@@ -506,82 +495,78 @@ pub async fn extract_waveform_streaming<P: AsRef<Path> + Send + 'static>(
             .map(|c| c.count())
             .ok_or("no channels info")?;
 
-        let sample_rate = track
-            .codec_params
-            .sample_rate
-            .ok_or("no sample rate info")?;
-
-        // оценка общего количества семплов
-        let estimated_total_samples = if let Some(n_frames) = track.codec_params.n_frames {
-            n_frames as usize
-        } else {
-            (sample_rate as usize) * 240 /* запас: 4 минуты */
-        };
+        let segment_frames = total_frames / points as u64;
 
         let mut result = vec![0.0f32; points];
-        let mut max_val = 0.0f32;
+        let mut global_max = 0.0f32;
 
-        // шаг выборки — чтобы не читать все сэмплы
-        let stride = (estimated_total_samples / (points * 10)).max(1);
-        let mut total_samples = 0usize;
+        for i in 0..points {
+            let ts = i as u64 * segment_frames;
 
-        // основной цикл
-        while let Ok(packet) = format.next_packet() {
-            if packet.track_id() != track_id {
-                continue;
-            }
+            let secs = ts / sample_rate as u64;
+            let rem_frames = ts % sample_rate as u64;
 
-            let decoded = match decoder.decode(&packet) {
-                Ok(decoded) => decoded,
-                Err(Error::DecodeError(_)) => continue,
-                Err(Error::IoError(ref err)) if err.kind() == std::io::ErrorKind::UnexpectedEof => {
-                    break;
-                }
-                Err(Error::ResetRequired) => {
-                    decoder.reset();
-                    continue;
-                }
-                Err(err) => return Err(Box::new(err) as _),
-            };
+            let frac = rem_frames as f64 / sample_rate as f64;
 
-            let spec = *decoded.spec();
-            let duration = decoded.frames() as u64;
-            let mut buf = SampleBuffer::<f32>::new(duration, spec);
-            buf.copy_interleaved_ref(decoded);
+            let seek_time = Time::new(secs, frac);
 
-            for (i, chunk) in buf.samples().chunks(channels).enumerate() {
-                total_samples += 1;
-                if total_samples % stride != 0 {
-                    continue;
-                }
+            format.seek(
+                SeekMode::Accurate,
+                SeekTo::Time {
+                    time: seek_time,
+                    track_id: Some(track_id),
+                },
+            )?;
 
-                // downmix to mono
-                let mono = if channels > 1 {
-                    chunk.iter().sum::<f32>() / channels as f32
-                } else {
-                    chunk[0]
+            decoder.reset();
+
+            let mut local_max = 0.0f32;
+            let mut frames_read = 0u64;
+
+            let max_frames_to_read = sample_rate as u64 / 25; 
+
+            while frames_read < max_frames_to_read {
+                let packet = match format.next_packet() {
+                    Ok(p) => p,
+                    Err(_) => break,
                 };
 
-                let abs_val = mono.abs();
-                let point_idx = (total_samples * points / estimated_total_samples).min(points - 1);
+                if packet.track_id() != track_id {
+                    continue;
+                }
 
-                if abs_val > result[point_idx] {
-                    result[point_idx] = abs_val;
-                    if abs_val > max_val {
-                        max_val = abs_val;
+                let decoded = match decoder.decode(&packet) {
+                    Ok(d) => d,
+                    Err(Error::DecodeError(_)) => continue,
+                    Err(_) => break,
+                };
+
+                if let AudioBufferRef::F32(buf) = decoded {
+                    for frame in 0..buf.frames() {
+                        let mut mono = 0.0;
+                        for ch in 0..channels {
+                            mono += buf.chan(ch)[frame];
+                        }
+                        mono /= channels as f32;
+
+                        let abs = mono.abs();
+                        if abs > local_max {
+                            local_max = abs;
+                        }
                     }
+                    frames_read += buf.frames() as u64;
                 }
             }
 
-            if total_samples >= estimated_total_samples {
-                break;
+            result[i] = local_max;
+            if local_max > global_max {
+                global_max = local_max;
             }
         }
 
-        // нормализация
-        if max_val > 0.0 {
+        if global_max > 0.0 {
             for val in &mut result {
-                *val /= max_val;
+                *val /= global_max;
             }
         }
 

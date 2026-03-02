@@ -1,16 +1,24 @@
+#![cfg_attr(
+    all(not(debug_assertions), target_os = "windows"),
+    windows_subsystem = "windows"
+)]
+
 mod music;
 mod player;
+
+use std::env;
 
 use std::{
     path::Path,
     sync::{Arc, Mutex},
 };
 
-use tauri::{Manager, State};
+use tauri::{Emitter, Manager, State};
 
 use crate::music::{extract_waveform, extract_waveform_streaming, get_music, Track};
 use crate::player::{Player, PlayerError};
 
+use tauri_plugin_single_instance::init as single_instance;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -128,11 +136,21 @@ async fn get_wave(path: String, points: usize) -> Result<Vec<f32>, String> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let args: Vec<String> = env::args().collect();
+
     tauri::Builder::default()
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
-        .setup(|app| {
+        .plugin(single_instance(|app, argv, _cwd| {
+            if argv.len() > 1 {
+                app.emit("open-files", argv[1..].to_vec()).unwrap();
+            }
+        }))
+        .setup(move |app| {
+            if args.len() > 1 {
+                app.emit("open-files", args[1..].to_vec()).unwrap();
+            }
             app.manage(Mutex::new(AppState::default()));
             Ok(())
         })
