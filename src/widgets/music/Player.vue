@@ -9,10 +9,10 @@ import { onBeforeUnmount, onMounted, onUnmounted, watch, inject } from 'vue';
 import { formattedTime } from '../../utils/time';
 import Timeline from '../../components/ui/timeline.vue';
 import { useLayout } from '../../stores/layout';
+import { useSettings, themePresets } from '../../stores/settings';
 import { listen } from '@tauri-apps/api/event';
 // ts-ignore
 import colorthief from 'colorthief';
-import { createSoftRadialGradient } from '../../utils/color';
 import IconPlay from '~icons/lucide/play';
 import IconPause from '~icons/lucide/pause';
 import IconSkipPrevious from '~icons/lucide/skip-back';
@@ -28,11 +28,13 @@ import IconVolumeX from '~icons/lucide/volume-x';
 
 const musaStore = useMusa();
 const layoutStore = useLayout();
+const settingsStore = useSettings();
 
 const mainComponent = inject<{ navigateTo: (page: 'player' | 'settings') => void } | null>('mainComponent', null);
 
 const { music, volume, isPlaying, time } = storeToRefs(musaStore);
 const { visible } = storeToRefs(layoutStore);
+const { theme } = storeToRefs(settingsStore);
 
 const handlePlayMusic = async () => {
 	if (!music.value) return;
@@ -50,27 +52,33 @@ const navigateToSettings = () => {
 
 watch(music, async () => {
 	if (music.value?.cover) {
+		// Extract colors from album cover
 		const color = new colorthief();
 		const image = new Image();
+		image.crossOrigin = 'Anonymous';
 		image.src = getUrl(music.value.cover);
 
-		const gradient: [number, number, number][] = await color.getPalette(
-			image,
-			4
-		);
+		await new Promise((resolve) => {
+			image.onload = resolve;
+		});
 
+		const palette: [number, number, number][] = await color.getPalette(image, 5);
+		
+		if (palette && palette.length >= 2) {
+			// Create vibrant gradient from dominant colors
+			const [color1, color2] = palette;
+			const gradient = `linear-gradient(135deg, 
+				rgba(${color1[0]}, ${color1[1]}, ${color1[2]}, 0.95) 0%, 
+				rgba(${color2[0]}, ${color2[1]}, ${color2[2]}, 0.85) 100%)`;
+			
+			document.documentElement.style.setProperty('--app-gradient', gradient);
+		}
+	} else {
+		// Fallback to theme preset when no cover
 		document.documentElement.style.setProperty(
 			'--app-gradient',
-			createSoftRadialGradient(gradient.map((g) => `rgba(${g.join(',')},1)`))
+			themePresets[theme.value]
 		);
-	} else {
-		const g = `linear-gradient(
-		80deg,
-		rgba(174,110,110,0.8),
-		rgba(244,139,83,0.7)
-	)`;
-
-		document.documentElement.style.setProperty('--app-gradient', g);
 	}
 });
 

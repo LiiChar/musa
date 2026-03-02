@@ -23,10 +23,12 @@ const { theme, language, volume, normalizeAudio, crossfade } = storeToRefs(setti
 
 const handleThemeChange = (preset: ThemePreset) => {
 	settings.setTheme(preset);
+	settings.saveSettings();
 };
 
 const handleLanguageChange = (locale: AvailableLocales) => {
 	settings.setLanguage(locale);
+	settings.saveSettings();
 };
 
 const handleBack = () => {
@@ -36,11 +38,18 @@ const handleBack = () => {
 const handleVolumeChange = (event: Event) => {
 	const target = event.target as HTMLInputElement;
 	settings.volume = Number(target.value);
+	settings.saveSettings();
 };
 
 const handleCrossfadeChange = (event: Event) => {
 	const target = event.target as HTMLInputElement;
 	settings.crossfade = Number(target.value);
+	settings.saveSettings();
+};
+
+const toggleNormalizeAudio = () => {
+	settings.normalizeAudio = !settings.normalizeAudio;
+	settings.saveSettings();
 };
 </script>
 
@@ -147,7 +156,7 @@ const handleCrossfadeChange = (event: Event) => {
 					<div class="setting_row">
 						<label class="setting_label">{{ t('settings.normalizeAudio') }}</label>
 						<button
-							@click="settings.normalizeAudio = !settings.normalizeAudio"
+							@click="toggleNormalizeAudio"
 							:class="{ toggle_button: true, active: normalizeAudio }"
 						>
 							<IconCheck v-if="normalizeAudio" class="toggle_check" />
