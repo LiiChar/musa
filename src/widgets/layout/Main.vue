@@ -26,6 +26,6 @@ defineExpose({ navigateTo, currentPage, navigateBack });
 <style scoped>
 .main_player_wrapper {
 	width: 60%;
-	min-width: 330px;
+	min-width: 150px;
 }
 </style>

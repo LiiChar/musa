@@ -110,14 +110,14 @@ const toggleNormalizeAudio = () => {
 						@click="handleLanguageChange('en')"
 						class="language_button"
 					>
-						🇬🇧 English
+						English
 					</Button>
 					<Button
 						:active="language === 'ru'"
 						@click="handleLanguageChange('ru')"
 						class="language_button"
 					>
-						🇷🇺 Русский
+						Русский
 					</Button>
 				</div>
 			</div>

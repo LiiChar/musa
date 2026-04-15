@@ -144,11 +144,13 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(single_instance(|app, argv, _cwd| {
             if argv.len() > 1 {
+                println!("Received single instance event with args: {:?}", argv);
                 app.emit("open-files", argv[1..].to_vec()).unwrap();
             }
         }))
         .setup(move |app| {
             if args.len() > 1 {
+                println!("Received setup event with args: {:?}", args);
                 app.emit("open-files", args[1..].to_vec()).unwrap();
             }
             app.manage(Mutex::new(AppState::default()));

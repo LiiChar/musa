@@ -49,7 +49,9 @@
 					"alac",
 					"mpc"
 				],
-				"name": "Musa"
+				"name": "Musa",
+				"description": "Play music files with Musa",
+				"role": "Editor"
 			}
 		]
 	}

@@ -352,6 +352,10 @@ const timeRemain = computed(() => {
 	width: 0;
 	height: 0;
 }
+.sidebar_toggle:last-child {
+	opacity: 1;
+	transition: none !important;
+}
 
 .sidebar_toggle {
 	opacity: 0;
@@ -362,10 +366,12 @@ const timeRemain = computed(() => {
 	display: flex;
 	align-items: center;
 	gap: 6px;
+	position: absolute;
+	right: 6px;
 }
 
 @media (max-width: 600px) {
-	.sidebar_toggle {
+	.sidebar_toggle:first-child {
 		opacity: 1;
 	}
 }

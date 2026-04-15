@@ -11,8 +11,7 @@ import Timeline from '../../components/ui/timeline.vue';
 import { useLayout } from '../../stores/layout';
 import { useSettings, themePresets } from '../../stores/settings';
 import { listen } from '@tauri-apps/api/event';
-// ts-ignore
-import colorthief from 'colorthief';
+import { getPalette } from 'colorthief';
 import IconPlay from '~icons/lucide/play';
 import IconPause from '~icons/lucide/pause';
 import IconSkipPrevious from '~icons/lucide/skip-back';
@@ -21,10 +20,6 @@ import IconShuffle from '~icons/lucide/shuffle';
 import IconRepeat from '~icons/lucide/repeat';
 import IconSettings from '~icons/lucide/settings';
 import IconVinyl from '~icons/lucide/disc-3';
-import IconVolume from '~icons/lucide/volume';
-import IconVolume1 from '~icons/lucide/volume-1';
-import IconVolume2 from '~icons/lucide/volume-2';
-import IconVolumeX from '~icons/lucide/volume-x';
 import MiniPlayer from './MiniPlayer.vue';
 
 const musaStore = useMusa();
@@ -53,8 +48,6 @@ const navigateToSettings = () => {
 
 watch(music, async () => {
 	if (music.value?.cover) {
-		// Extract colors from album cover
-		const color = new colorthief();
 		const image = new Image();
 		image.crossOrigin = 'Anonymous';
 		image.src = getUrl(music.value.cover);
@@ -63,14 +56,13 @@ watch(music, async () => {
 			image.onload = resolve;
 		});
 
-		const palette: [number, number, number][] = await color.getPalette(image, 5);
+		const palette = await getPalette(image);
 		
 		if (palette && palette.length >= 2) {
-			// Create vibrant gradient from dominant colors
 			const [color1, color2] = palette;
 			const gradient = `linear-gradient(135deg, 
-				rgba(${color1[0]}, ${color1[1]}, ${color1[2]}, 0.95) 0%, 
-				rgba(${color2[0]}, ${color2[1]}, ${color2[2]}, 0.85) 100%)`;
+				rgba(${color1.rgb().r}, ${color1.rgb().g}, ${color1.rgb().b}, 0.95) 0%, 
+				rgba(${color2.rgb().r}, ${color2.rgb().g}, ${color2.rgb().b}, 0.85) 100%)`;
 			
 			document.documentElement.style.setProperty('--app-gradient', gradient);
 		}
@@ -100,7 +92,7 @@ const handleSpaceDown = (e: KeyboardEvent) => {
 onMounted(async () => {
 	listen<string[]>("open-files", (event: any) => {
 		console.log(event);
-		
+		document.body.textContent = `Received open-files event with payload: ${JSON.stringify(event.payload)}`;
 		if (event.payload.length) musaStore.fetchMusics(event.payload);
 	});
 
@@ -133,7 +125,7 @@ const handleChangeTime = async (payload: number[] | undefined) => {
 </script>
 
 <template>
-		<MiniPlayer class="miniplayer_container"/>
+		<MiniPlayer data-tauri-drag-region class="miniplayer_container"/>
 	<div ref="player-wrapper" v-if="music" :class="`player_container ${isPlaying ? 'music_playing' : ''}`">
 		<div class="music_player">
 			<div class="music_logo_wrapper">
@@ -146,6 +138,7 @@ const handleChangeTime = async (payload: number[] | undefined) => {
 				<IconVinyl
 					v-else
 					class="music_icon rotate-infinity"
+					
 				/>
 			</div>
 			<div class="music_info">
@@ -259,6 +252,10 @@ const handleChangeTime = async (payload: number[] | undefined) => {
 </template>
 
 <style scoped>
+.music_playing .music_icon {
+	animation-play-state: running;
+}
+
 .not-found_wrapper {
 	display: flex;
 	gap: 14px;
@@ -323,10 +320,11 @@ const handleChangeTime = async (payload: number[] | undefined) => {
 	align-items: center;
 	justify-content: center;
 	aspect-ratio: 1 / 1;
-	box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+	/* box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px; */
 	border-radius: 24px;
-	border: 1px solid var(--secondary-glass);
-	background: var(--secondary-glass);
+	overflow: hidden;
+	/* background: var(--secondary-glass); */
+	backdrop-filter: blur(12px);
 }
 
 .music_logo {
@@ -339,6 +337,7 @@ const handleChangeTime = async (payload: number[] | undefined) => {
 .music_icon {
 	width: 100%;
 	height: 100%;
+	animation-play-state: paused;
 }
 
 .music_timeline {

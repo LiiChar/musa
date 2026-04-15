@@ -32,7 +32,7 @@ watch(visible, (v) => {
 
 <template>
 	<main class="app_container">
-		<SplitterGroup direction="horizontal">
+		<SplitterGroup direction="horizontal" >
 			<SplitterPanel
 				class="sidebar_panel"
 				:max-size="!visible.sidebar ? 0.1 : 100"
@@ -72,7 +72,7 @@ watch(visible, (v) => {
 }
 
 .sidebar_panel {
-	transition: all 0.2s ease-in-out;
+	/* transition: all 0.2s ease-in-out; */
 }
 
 @media (max-width: 600px) {
@@ -83,7 +83,7 @@ watch(visible, (v) => {
 		background: var(--app-gradient);
 
 		top: 0;
-		backdrop-filter: blur(8px);
+		backdrop-filter: blur(12px);
 		height: 100%;
 		width: 300px;
 		max-width: 100%;

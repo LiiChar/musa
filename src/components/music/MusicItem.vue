@@ -17,7 +17,7 @@ const chooseMusic = () => {
 	musa.setMusic(music);
 };
 
-const { music: m } = storeToRefs(musa);
+const { music: m, isPlaying } = storeToRefs(musa);
 </script>
 
 <template>
@@ -33,7 +33,7 @@ const { music: m } = storeToRefs(musa);
 		/>
 		<IconVinyl
 			v-else
-			class="music_item_logo"
+			:class="{'music_item_logo ': true, 'rotate-infinity': m && m.id === music.id, 'animation-paused': m && m.id === music.id && !isPlaying}"
 		/>
 		<div class="music_item_info">
 			<h3 class="music_info_title">{{ music.title }}</h3>
@@ -69,17 +69,33 @@ const { music: m } = storeToRefs(musa);
 	transform: translateX(4px);
 }
 
+.music_item.active {
+		background: rgba(255, 255, 255, 0.1);
+	transform: translateX(4px);
+}
+
+.music_item:has(.dropdawn-trigger[data-state="open"]) {
+	transform: translateX(4px);
+}
+
+.music_item:has(.dropdawn-trigger[data-state="open"]) .played:last-child {
+		z-index: 1 !important;
+	opacity: 1 !important;
+		backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+}
+
 .music_item:active {
 	transform: scale(0.98);
 }
 
 .music_item_logo {
-	height: 45px;
-	width: 45px;
+	height: 36px;
+	width: 36px;
 	aspect-ratio: 1 / 1;
 	border-radius: 4px;
 	object-fit: cover;
-	min-width: 45px;
+	min-width: 36px;
 	transition: all 0.2s ease;
 }
 
@@ -166,10 +182,19 @@ const { music: m } = storeToRefs(musa);
 .played .music_action {
 	z-index: -1;
 	opacity: 0;
-	transition: opacity 0.2s ease;
 }
 
 .music_action_wrapper {
+		position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	right: 8px;
+	width: 16px;
+	height: 16px;
+
+	border-radius: 100%;
+	padding: 8px;
+	transition: all 0.2s ease;
 	padding: 0 !important;
 	width: 32px !important;
 	height: 32px !important;

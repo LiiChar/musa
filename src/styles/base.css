@@ -91,9 +91,22 @@ h5 {
 	}
 }
 
-.music_playing .rotate-infinity {
+.rotate-infinity {
 	animation: rotate-infinity 6s linear infinite;
 }
+
+.rotate-infinity.active {	
+	animation-play-state: running;
+}
+
+.animation-running {	
+	animation-play-state: running !important;
+}
+
+.animation-paused {	
+	animation-play-state: paused !important;
+}
+
 
 @keyframes rotate-infinity {
 	0% {

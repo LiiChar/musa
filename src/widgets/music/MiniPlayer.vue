@@ -10,20 +10,51 @@ import IconPause from '~icons/lucide/pause';
 import IconSkipPrevious from '~icons/lucide/skip-back';
 import IconSkipNext from '~icons/lucide/skip-forward';
 import IconVinyl from '~icons/lucide/disc-3';
+import { onMounted, onUnmounted, ref } from 'vue';
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
+import { getCurrentWindow } from '@tauri-apps/api/window';
+import { UnlistenFn } from '@tauri-apps/api/event';
+import { useLayout } from '../../stores/layout';
 
 const musaStore = useMusa();
+const layout = useLayout();
 
 const { music, isPlaying, time } = storeToRefs(musaStore);
+const { visible, } = storeToRefs(layout);
 
 const handlePlayMusic = async () => {
 	if (!music.value) return;
-
+	
 	if (isPlaying.value) {
-		musaStore.pauseMusic();
+		musaStore.pauseMusic(); 
 	} else {
 		musaStore.playMusic();
 	}
 };
+
+let unlisten: UnlistenFn
+
+onMounted(async () => {
+	unlisten = await getCurrentWindow().onResized(async ({ payload: size }) => {
+		const tauriWindow = getCurrentWindow();
+		const onTop = await tauriWindow.isAlwaysOnTop();
+		if (size.height > 180) {
+			if (onTop) {
+				tauriWindow.setAlwaysOnBottom(false)
+			}
+			return
+		};
+		
+		if (!onTop) {
+			layout.toggleVisibleSidebar(false);
+			tauriWindow.setAlwaysOnBottom(true)
+		}
+	});
+})
+
+onUnmounted(() => {
+	unlisten();
+})
 </script>
 
 <template>
@@ -32,25 +63,28 @@ const handlePlayMusic = async () => {
 			<div :style="{width: `${time / (music.duration ?? 1) * 100}px` }" class="miniplayer_time"></div>
 		</div>
 		<div class="miniplayer_content">
-			<div class="miniplayer_cover">
-				<img
-					v-if="music.cover"
-					class="miniplayer_cover_img"
-					:src="getUrl(music.cover)"
-					alt="Album cover"
-				/>
-				<IconVinyl
-					v-else
-					class="miniplayer_cover_icon rotate-infinity"
-				/>
-			</div>
-			<div class="miniplayer_info">
-				<div class="miniplayer_info_title">{{ music.title }}</div>
-				<div class="miniplayer_info_artist">{{ music.artist }}</div>
-				<div class="miniplayer_info_time">
-					{{ formattedTime(Math.abs(time - (music.duration ?? 0)), 'ms', 'm:s') }}
+			<div class="miniplayer_info_wrapper">
+				<div class="miniplayer_cover">
+					<img
+						v-if="music.cover"
+						class="miniplayer_cover_img"
+						:src="getUrl(music.cover)"
+						alt="Album cover"
+					/>
+					<IconVinyl
+						v-else
+						class="miniplayer_cover_icon rotate-infinity"
+					/>
+				</div>
+				<div class="miniplayer_info">
+					<div class="miniplayer_info_title">{{ music.title }}</div>
+					<div class="miniplayer_info_artist">{{ music.artist }}</div>
+					<div class="miniplayer_info_time">
+						{{ formattedTime(Math.abs(time - (music.duration ?? 0)), 'ms', 'm:s') }}
+					</div>
 				</div>
 			</div>
+
 			<div class="miniplayer_controls">
 				<Button
 					variant="rounded"
@@ -117,9 +151,15 @@ const handlePlayMusic = async () => {
 	z-index: 1;
 	display: flex;
 	align-items: center;
-	gap: 12px;
+	justify-content: space-between;
 	height: 100%;
 	padding: 0 12px;
+}
+
+.miniplayer_info_wrapper {
+	display: flex;
+	gap: 12px;
+	align-items: center;
 }
 
 .miniplayer_cover {
@@ -148,7 +188,6 @@ const handlePlayMusic = async () => {
 }
 
 .miniplayer_info {
-	flex: 1;
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
@@ -214,5 +253,17 @@ const handlePlayMusic = async () => {
 	color: var(--foreground);
 	opacity: 0.5;
 	font-size: 12px;
+}
+
+@media (max-width: 330px) {
+	.miniplayer_control_btn:first-child, .miniplayer_control_btn:last-child {
+		display: none;
+	}
+}
+
+@media (max-width: 220px) {
+	.miniplayer_cover {
+		display: none;
+	}
 }
 </style>

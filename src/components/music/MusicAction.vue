@@ -27,31 +27,32 @@ const handleDelete = async () => {
 <template>
 	<div class="music_dialog_selector_wrapper">
 		<DropdownMenuRoot as-child class="dropdawn-root">
-			<DropdownMenuTrigger class="dropdawn-trigger"
-				><IconMoreVertical
-			/></DropdownMenuTrigger>
+			<div @click="(e) => e.stopPropagation()">
+			<DropdownMenuTrigger class="dropdawn-trigger">
+					<IconMoreVertical/>
+				</DropdownMenuTrigger>
+			</div>
 			<DropdownMenuPortal >
 				<DropdownMenuContent class="dropdawn-content">
-					<DropdownMenuItem
-						><Button
+					<DropdownMenuItem>
+						<Button
 							@click="handleDelete"
 							class="btn_dialog_selector"
 							variant="ghost"
 						>
 							<IconDelete />
-							<span>Удалить</span></Button
-						></DropdownMenuItem
-					>
-					<DropdownMenuSeparator class="dropdawn-separator" />
-					<DropdownMenuItem>
+							<span>Удалить</span>
+						</Button>
+					</DropdownMenuItem>
+					<!-- <DropdownMenuSeparator class="dropdawn-separator" /> -->
+					<!-- <DropdownMenuItem>
 						<Button
 							class="btn_dialog_selector"
-							variant="ghost"
-						>
+							variant="ghost">
 							<IconMoreVertical class="rotated-icon" />
 							<span>Действия</span>
 						</Button>
-					</DropdownMenuItem>
+					</DropdownMenuItem> -->
 					<DropdownMenuArrow class="dropdawn-arrow" />
 				</DropdownMenuContent>
 			</DropdownMenuPortal>
