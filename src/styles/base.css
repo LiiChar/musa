@@ -83,3 +83,23 @@ h5 {
 .text-secondary {
 	color: var(--secondary-foreground);
 }
+
+
+@media (max-height: 280px) {
+	.titlebar {
+		display: none !important;
+	}
+}
+
+.music_playing .rotate-infinity {
+	animation: rotate-infinity 6s linear infinite;
+}
+
+@keyframes rotate-infinity {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}

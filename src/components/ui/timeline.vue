@@ -50,7 +50,6 @@ const progress = computed(() => {
 	return Math.min(100, Math.max(0, (time / duration) * 100));
 });
 
-// Handle direct click on timeline for accurate positioning
 const handleTimelineClick = (event: MouseEvent) => {
 	if (!container.value || duration <= 0) return;
 	
@@ -69,7 +68,6 @@ const handleTimelineClick = (event: MouseEvent) => {
 		ref="container"
 		@click="handleTimelineClick"
 	>
-		<!-- SVG с динамическим количеством палок -->
 		<svg
 			class="bitrate_svg"
 			:width="containerWidth"
@@ -78,7 +76,6 @@ const handleTimelineClick = (event: MouseEvent) => {
 			xmlns="http://www.w3.org/2000/svg"
 			style="pointer-events: none;"
 		>
-			<!-- Базовые линии -->
 			<g opacity="0.3">
 				<rect
 					v-for="(bit, idx) in waves"
@@ -92,7 +89,6 @@ const handleTimelineClick = (event: MouseEvent) => {
 				/>
 			</g>
 
-			<!-- Прогресс (клип по ширине) -->
 			<clipPath id="progress-clip">
 				<rect :width="(progress / 100) * containerWidth" height="50" />
 			</clipPath>
@@ -111,7 +107,6 @@ const handleTimelineClick = (event: MouseEvent) => {
 			</g>
 		</svg>
 
-		<!-- Слайдер -->
 		<SliderRoot
 			@update:model-value="onChange"
 			:model-value="[(time / duration) * 100]"

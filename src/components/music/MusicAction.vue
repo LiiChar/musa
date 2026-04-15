@@ -31,7 +31,7 @@ const handleDelete = async () => {
 				><IconMoreVertical
 			/></DropdownMenuTrigger>
 			<DropdownMenuPortal >
-				<DropdownMenuContent :as-child="true" class="dropdawn-content">
+				<DropdownMenuContent class="dropdawn-content">
 					<DropdownMenuItem
 						><Button
 							@click="handleDelete"
@@ -43,15 +43,15 @@ const handleDelete = async () => {
 						></DropdownMenuItem
 					>
 					<DropdownMenuSeparator class="dropdawn-separator" />
-					<DropdownMenuItem
-						><Button
+					<DropdownMenuItem>
+						<Button
 							class="btn_dialog_selector"
 							variant="ghost"
 						>
 							<IconMoreVertical class="rotated-icon" />
-							<span>Действия</span></Button
-						></DropdownMenuItem
-					>
+							<span>Действия</span>
+						</Button>
+					</DropdownMenuItem>
 					<DropdownMenuArrow class="dropdawn-arrow" />
 				</DropdownMenuContent>
 			</DropdownMenuPortal>

@@ -25,6 +25,7 @@ import IconVolume from '~icons/lucide/volume';
 import IconVolume1 from '~icons/lucide/volume-1';
 import IconVolume2 from '~icons/lucide/volume-2';
 import IconVolumeX from '~icons/lucide/volume-x';
+import MiniPlayer from './MiniPlayer.vue';
 
 const musaStore = useMusa();
 const layoutStore = useLayout();
@@ -132,7 +133,8 @@ const handleChangeTime = async (payload: number[] | undefined) => {
 </script>
 
 <template>
-	<div ref="player-wrapper" v-if="music" class="player_container">
+		<MiniPlayer class="miniplayer_container"/>
+	<div ref="player-wrapper" v-if="music" :class="`player_container ${isPlaying ? 'music_playing' : ''}`">
 		<div class="music_player">
 			<div class="music_logo_wrapper">
 				<img
@@ -143,11 +145,7 @@ const handleChangeTime = async (payload: number[] | undefined) => {
 				/>
 				<IconVinyl
 					v-else
-					class="music_logo"
-					:style="{
-						border: '1px solid var(--secondary-glass)',
-						background: '#ffffff21',
-					}"
+					class="music_icon rotate-infinity"
 				/>
 			</div>
 			<div class="music_info">
@@ -276,6 +274,22 @@ const handleChangeTime = async (payload: number[] | undefined) => {
 	align-items: center;
 }
 
+.miniplayer_container {
+	display: none;
+	width: 100%;
+	height: 100%;
+}
+
+@media (max-height: 280px) {
+	.player_container {
+		display: none;
+	}
+
+	.miniplayer_container {
+		display: block;
+	}
+}
+
 .music_timeline_line {
 	display: flex;
 	justify-content: center;
@@ -309,7 +323,10 @@ const handleChangeTime = async (payload: number[] | undefined) => {
 	align-items: center;
 	justify-content: center;
 	aspect-ratio: 1 / 1;
-
+	box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+	border-radius: 24px;
+	border: 1px solid var(--secondary-glass);
+	background: var(--secondary-glass);
 }
 
 .music_logo {
@@ -317,8 +334,11 @@ const handleChangeTime = async (payload: number[] | undefined) => {
 	height: 100%;
 	aspect-ratio: 1 / 1;
 	object-fit: cover;
-	border-radius: 24px;
-	box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+}
+
+.music_icon {
+	width: 100%;
+	height: 100%;
 }
 
 .music_timeline {

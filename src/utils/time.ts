@@ -5,6 +5,7 @@ type MillisToken = 'ms';
 
 type Separator = ':' | '.' | '-' | ' ';
 
+
 type Variant =
 	| `${HourToken}${Separator}${MinuteToken}${Separator}${SecondToken}`
 	| `${HourToken}${Separator}${MinuteToken}`

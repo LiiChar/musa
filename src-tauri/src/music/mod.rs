@@ -13,6 +13,7 @@ use std::{
     io::BufReader,
     path::{Path, PathBuf},
 };
+use std::cmp;
 use symphonia::core::audio::SampleBuffer;
 use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
@@ -495,7 +496,7 @@ pub async fn extract_waveform_streaming<P: AsRef<Path> + Send + 'static>(
             .map(|c| c.count())
             .ok_or("no channels info")?;
 
-        let segment_frames = total_frames / points as u64;
+        let segment_frames = total_frames / cmp::max(points as u64, 1);
 
         let mut result = vec![0.0f32; points];
         let mut global_max = 0.0f32;
