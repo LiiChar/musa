@@ -81,7 +81,8 @@ fn read_tags(path: &Path) -> Track {
     if let Ok(tagged) = Probe::open(path).and_then(|p| p.read(true)) {
         // Стандартные поля через Accessor
         if let Some(tag) = tagged.primary_tag() {
-            obj.insert("title".to_string(), json!(tag.title()));
+            let title = path.file_name().unwrap().to_string_lossy().to_string();
+            obj.insert("title".to_string(), json!(tag.title().unwrap_or(title.as_str())));
             obj.insert("artist".to_string(), json!(tag.artist()));
             obj.insert("album".to_string(), json!(tag.album()));
             obj.insert("genre".to_string(), json!(tag.genre()));
